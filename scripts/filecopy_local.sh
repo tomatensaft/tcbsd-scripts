@@ -1,7 +1,7 @@
 #!/bin/sh
-#spdx-license-identifier: mit
+#SPDX-License-Identifier: MIT
 
-#copy git repo to local machine
+#Copy git repo to local machine
 repo_name="tcbsd-scripts"
 
 printf "\n\ncopy ${repo_name} to local machine\\
@@ -23,14 +23,14 @@ else
     printf "no folder found\n\n"    
 fi
 
-#copy repo
-curl -lo tcbsd-scripts.tar.gz https://github.com/tomatensaft/${repo_name}/archive/main.tar.gz
+#Copy repo
+curl -Lo tcbsd-scripts.tar.gz https://github.com/tomatensaft/${repo_name}/archive/main.tar.gz
 
-#extract repo
+#extract Repo
 tar -xzf ${repo_name}.tar.gz
 
 #remove tar.gz file
 rm ${repo_name}.tar.gz
 
-#make shell script executeable
-chmod -r 755 ${repo_name}-main
+#Make shell script executeable
+chmod -R 755 ${repo_name}-main

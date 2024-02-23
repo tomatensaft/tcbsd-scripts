@@ -1,17 +1,17 @@
 #!/bin/sh
-#spdx-license-identifier: mit
-#not finished - not tested
+#SPDX-License-Identifier: MIT
+#Not finished - Not tested
 
-#short info
+#Short Info
 
-#include extenal scripts
+#Include extenal scripts
 if [ -f  ../../lib/shared_lib.sh ]; then
     . ../../lib/shared_lib.sh
 elif [ -f  ../lib/shared_lib.sh ]; then
     . ../lib/shared_lib.sh
 else
     log -info "$0: shared lib not found."
-    cleanup_exit err 
+    cleanup_exit ERR 
 fi
 
 
@@ -19,11 +19,11 @@ set -u
 
 dialog_msgbox() {
 	local _msg="${1}"
-	local _title="${2-"error"}"
-	local _backtitle="${3-"${dialog_backtitle-""}"}"
+	local _title="${2-"Error"}"
+	local _backtitle="${3-"${DIALOG_BACKTITLE-""}"}"
 	local _vsize="${4-"0"}"
 	local _hsize="${5-"0"}"
-	${dialog-dialog} -title "${_title}" -backtitle "${_backtitle}" -msgbox "${_msg}" "${_vsize}" "${_hsize}"
+	${DIALOG-dialog} -title "${_title}" -backtitle "${_backtitle}" -msgbox "${_msg}" "${_vsize}" "${_hsize}"
 }
 
-dialog_msgbox test titeltest backtitel 300 300
+dialog_msgbox Test TitelTest backtitel 300 300

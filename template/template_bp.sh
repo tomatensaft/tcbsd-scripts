@@ -1,37 +1,37 @@
 #!/bin/sh
-#spdx-license-identifier: mit
-#not finished - not tested
+#SPDX-License-Identifier: MIT
+#Not finished - Not tested
 
-#short info
+#Short Info
 
-#include extenal scripts
+#Include extenal scripts
 if [ -f  ../../lib/shared_lib.sh ]; then
     . ../../lib/shared_lib.sh
 elif [ -f  ../lib/shared_lib.sh ]; then
     . ../lib/shared_lib.sh
 else
     log -info "$0: shared lib not found."
-    cleanup_exit err 
+    cleanup_exit ERR 
 fi
 
-#print header
+#Print Header
 print_header 'header description'
 
-#check number of args
+#Check number of args
 check_args $# 1
 
-#parameter/arguments
+#Parameter/Arguments
 option=$1
 param_1="$(ls)"
 param_2="filename.txt"
 
-#main functions
+#Main Functions
 main() {
 
-    #check inputargs
+    #Check Inputargs
     case $option in
             --test)
-                log -info "test command for debugging $0"
+                log -info "test Command for debugging $0"
                 ;;
 
             --create)
@@ -60,19 +60,19 @@ main() {
 }
 
 
-#check requirements
+#Check requirements
 check_requirements() {
-    #check root
+    #Check Root
     check_root
 
-    #check command
+    #Check Command
     if command -v ls >/dev/null 2>&1 ; then
         log -info "program found"
     else
         log -info "program not found"
-        cleanup_exit err
+        cleanup_exit ERR
     fi 
 }
 
-#call main function manually - if not need uncomment
+#Call main Function manually - if not need uncomment
 main "$@"; exit

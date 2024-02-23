@@ -1,23 +1,23 @@
 #!/bin/sh
-#spdx-license-identifier: mit
+#SPDX-License-Identifier: MIT
 
 
-#template for debugging
+#Template for debugging
 
-#include extenal scripts
+#Include extenal scripts
 if [ -f  ../../lib/shared_lib.sh ]; then
     . ../../lib/shared_lib.sh
 elif [ -f  ../lib/shared_lib.sh ]; then
     . ../lib/shared_lib.sh
 else
     log -info "$0: shared lib not found."
-    cleanup_exit err 
+    cleanup_exit ERR 
 fi
 
-#print header
+#Print Header
 print_header 'debug started'
 
-#check existing jail
+#Check Existing Jail
 jail_name="test"
     if ! check_jail $jail_name; then
         log -info "$0: jail ${jail_name} not found."
@@ -25,40 +25,40 @@ jail_name="test"
         log -info "$0: jail ${jail_name} allready exists."
     fi
 
-#check vbox device
+#Check VBox device
 if  ! check_vbox_device; then
     log -info "$0: vbox not found."
 else
     log -info "$0: vbox found."
 fi
 
-#test eof
-log -info "$0: test eof"
-    cat << eof >> /tmp/pf.conf
-    test contentdf
-eof
+#Test EOF
+log -info "$0: Test EOF"
+    cat << EOF >> /tmp/pf.conf
+    Test Contentdf
+EOF
 
-#test read file
-log -info "$0: test read"
+#Test read file
+log -info "$0: Test read"
 jail_id="$(cat /tmp/jail_id)"
 echo $jail_id
 echo $((jail_id+1)) > /tmp/jail_id
 
 
-#find rc entry
-log -info "$0: test rc.conf"
+#Find Rc Entry
+log -info "$0: Test rc.conf"
 if  grep jail_enable /etc/rc.conf ; then
     echo found
 else
     echo not found
 fi
 
-#test parameter
-log -info "$0: test param"
-param1="test"
-param2="ok"
+#Test Parameter
+log -info "$0: Test param"
+param1="Test"
+param2="OK"
 
-#include extenal scripts
+#Include extenal scripts
 if [ -f param.conf ]; then
     log -info "$0: parameter file found -use parameter."
     . param.conf
@@ -83,30 +83,30 @@ test_parameter() {
 
 }
 
-log -info "$0: init parameters"
+log -info "$0: Init Parameters"
 
-test_parameter abs abs asa
+test_parameter ABS ABS ASA
 
-#find rc entry
-log -info "$0: test zfs find"
+#Find Rc Entry
+log -info "$0: Test zfs find"
 if  zfs list | grep zroot/jail ; then
     echo found
 else
     echo not found
 fi
 
-touch $home/test
+touch $HOME/test
 
-#adjust infuxd config file
+#Adjust infuxd config file
         sed  "" "s/^\[http\]/\n\\
         #custom configuration\\
         enabled=true""\\
         bind-address=:8086""\n/" /jails/influxdb//usr/local/etc/influxd.conf
 
-jails="$(jls | awk 'nr>1 { print $1 }')"
+JAILS="$(jls | awk 'NR>1 { print $1 }')"
 
-for jail in $jails; do
-    jexec $jail uname -a
+for JAIL in $JAILS; do
+    jexec $JAIL uname -a
 done
 
 test=""
@@ -117,7 +117,7 @@ else
     echo not empty
 fi
 
-  log -info "test zfs ---------"
+  log -info "Test ZFS ---------"
 
 
 
@@ -135,14 +135,14 @@ fi
         log -info "jail wireguard packetfilter config not found - creating"
     fi
 log -info "check jail"
-#check_jail wireguard err
+#check_jail wireguard ERR
 
 
 
 #if ! [ "$(ping -c1 8.84.84.8)" ]; then
-#    log -info "no connection"
+#    log -info "No Connection"
 #else
-#    log -info "connection ok"
+#    log -info "Connection OK"
 #fi
 
 

@@ -3,8 +3,8 @@
 
 set -u
 
-#Header Functions
-#$1 Header
+#header functions
+#$1 header
 print_header()
 {
 
@@ -13,15 +13,15 @@ print_header()
 	printf "\n################################################\n\n"
 }
 
-#Print Header
+#print header
 print_header 'load shared lib'
 
 #check if file exists
 
-#Find & Replace
-#$1 File
-#$2 Parameter
-#$3 Value
+#find & replace
+#$1 file
+#$2 parameter
+#$3 value
 add_or_replace_in() {
 	
 	if grep "^$2" "$1" > /dev/null; then
@@ -31,8 +31,8 @@ add_or_replace_in() {
 	fi
 }
 
-#Check Git Client - Needed for different software
-#$1 Exit (EXT) or Return (RET)
+#check git client - needed for different software
+#$1 exit (EXT) or return (RET)
 check_git() {
 
 	#Preconfigure ExitState

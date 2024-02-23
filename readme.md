@@ -1,25 +1,25 @@
 # tcbsd-scripts :smiling_imp:
 
-### posix **examples** for freebsd/tcbsd]
-### [script for filebased copy on target devices](scripts/filecopy_local.sh)
+### Posix **EXAMPLES** for FreeBsd/TcBsd]
+### [Script for filebased copy on target devices](scripts/filecopy_local.sh)
 
 
-## projectstructure
+## Projectstructure
 
-### project under delevelopment / testing :construction_worker:
-* [documentation](doc)
-* [images](images)
-* [library / system tools](lib)
-* [script templates](template)
-* [script repo with useful scripts](scripts)
-  - [ca-cert generation](scripts/cert)
-  - [device mount scripts](scripts/dev)
-  - [git cli examples](scripts/git)
-  - [kernel tool](scripts/kernel)
-  - [login scripts](scripts/login)
-  - [network tools](scripts/net)
-  - [package handling](scripts/pkg)
-  - [setup bsd machines](scripts/setup)
-  - [system tools](scripts/system)
-  - [tmux tools / cli multiwindows](scripts/tmux)
-  - [virtualisation scripts](scripts/virtual)
+### Project under delevelopment / testing :construction_worker:
+* [Documentation](doc)
+* [Images](images)
+* [Library / System tools](lib)
+* [Script templates](template)
+* [Script repo with useful scripts](scripts)
+  - [CA-cert generation](scripts/cert)
+  - [Device mount scripts](scripts/dev)
+  - [Git cli examples](scripts/git)
+  - [Kernel tool](scripts/kernel)
+  - [Login scripts](scripts/login)
+  - [Network tools](scripts/net)
+  - [Package handling](scripts/pkg)
+  - [Setup bsd machines](scripts/setup)
+  - [System tools](scripts/system)
+  - [TMux tools / cli multiwindows](scripts/tmux)
+  - [Virtualisation scripts](scripts/virtual)
