@@ -1,14 +1,13 @@
 ## jail templates
+jail templaes for easy cration of different jails
 
-### init jail system
-
+### init
 init once jail system from configfile (network/zfs) - reboot required
 ``` 
 doas ./setup_jail_guest.sh --init ./conf/jail_standard.conf
 ``` 
 
 ### usage bsd jails
-
 create jail from configfile
 ``` 
 doas ./setup_jail_guest.sh --create ./conf/jail_standard.conf
@@ -25,7 +24,6 @@ doas ./setup_jail_guest.sh --clean
 ``` 
 
 ### usage linux jails
-
 alpine linux - no additional software
 ``` 
 doas ./setup_jail_guest.sh --create ./conf/jail_alpine_linux.conf
