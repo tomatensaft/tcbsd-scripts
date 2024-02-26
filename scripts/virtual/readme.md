@@ -1,8 +1,9 @@
-## para(virtual) machines
+## virtual machines and jails
+virtual machines and jails (chroot) with networkng and jail templates
 
-### structure
-* [bhyve virtualization](bhyve)
-* [freebsd jail eamxples](jail)
-* [virtual network](net)
-* [qemu virtualization](qemu)
-* [virtualbox](vbox)
+### contents
+* [bhyve](bhyve/)
+* [jails](jail/)
+* [vnet](net/)
+* [qemu](qemu/)
+* [vbox](vbox/)
