@@ -1,8 +1,7 @@
 ## standardlib for this repo
-
+standard library for interncal script functions
 
 ### include standard lib
-
 how this lib is included at scripts
 ``` 
 #Include extenal scripts
