@@ -1,7 +1,5 @@
 ## git console tools
-
-
-### not finished yet
+git console shells script - not finished
 
 operate git console
 ``` 
