@@ -1,5 +1,5 @@
 ## kernel options
-
+kernel option for building from source
 
 ### build & fetch kernel sources
 
