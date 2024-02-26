@@ -1,8 +1,7 @@
 ## system script
-
+different script for system setup
 
 ### setup console tools
-
 activate doas without password
 ``` 
 setup_console.sh --doas_pwd
@@ -40,14 +39,12 @@ setup_console.sh --tools_freebsd
 
 
 ### setup workstation
-
 setup workstation with tools
 ``` 
 setup_workstation.sh
 ``` 
 
 ### setup xorg
-
 setup xorg only with chromium
 ``` 
 setup_xorg.sh --install_chrome
@@ -57,6 +54,3 @@ setup xorg owith kde
 ``` 
 setup_xorg.sh --install_kde
 ``` 
-
-
-
