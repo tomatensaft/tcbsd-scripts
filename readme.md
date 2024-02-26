@@ -3,7 +3,6 @@ posix examples for freebsd/tcbsd
 
 ## resources
 * documenation [doc](doc/)
-* images [images](images/)
 * library / system tools [lib](lib/)
 * script templates [template](template/)
 * script repo for bsd [scripts](scripts/)
