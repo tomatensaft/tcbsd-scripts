@@ -1,6 +1,5 @@
 # tcbsd-scripts :smiling_imp:
 posix examples for freebsd/tcbsd
-!!!!!ATTENTION - CHANGED LIB LOCATION - MUST BE TESTET IN THE NEXT WEEKS!!!!!!!
 
 ## contents
 - [tcbsd-scripts :smiling\_imp:](#tcbsd-scripts-smiling_imp)
@@ -37,4 +36,4 @@ posix examples for freebsd/tcbsd
 * virtualbox [vbox](vbox/)
 
  ---
- *[v1.0.1]*
+ *[v2.0.1]*

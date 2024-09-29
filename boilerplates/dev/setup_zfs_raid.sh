@@ -1,36 +1,79 @@
 #!/bin/sh
-#SPDX-License-Identifier: MIT
+#spdx-license-identifier: mit
 
-#Short Info
+#set -x
 
-#Include extenal scripts
-if [ -f  ../../../lib/shared_lib.sh ]; then
-    . ../../../lib/shared_lib.sh
-elif [ -f  ../../lib/shared_lib.sh ]; then
-    . ../../lib/shared_lib.sh
-elif [ -f  ../lib/shared_lib.sh ]; then
-    . ../lib/shared_lib.sh    
+# set absolute path of root app for global use - relative path from this point
+# ${pwd%/*} -> one folder up / ${pwd%/*/*} -> two folders up
+# adjust script application path/folder
+# configuration file will be the same main name as the shell script - but only with .conf extension
+
+# option
+option=${1}
+
+# script parameter
+root_path="${pwd%/*}/tomatoe-lib/" # "${pwd%/*}/tomatoe-lib/"
+main_lib="${root_path}/main_lib.sh"
+app_name="${0##*/}"
+app_fullname="${pwd}/${app_name}"
+#conf_default="$(echo "$app_fullname" | sed 's/.\{2\}$/conf/')"
+conf_default="${pwd%/*}/tomatoe_lib.conf"
+conf_custom=${2:-"none"}
+
+
+# header of parameter
+printf "\nparameters load - $(date +%y-%m-%d-%h-%m-%s)\n"
+printf "########################################\n\n"
+
+# load config file for default parameters
+if [ -f  ${conf_default} ]; then
+   printf "$0: include default parameters from ${conf_default}\n"
+   . ${conf_default}
 else
-    printf "$0: shared lib not found - exit."
-    exit 1
+   printf "$0: config lib default parameters not found - exit\n"
+   exit 1
 fi
 
-#Print Header
+# load config file for custom parameters
+if [ ${conf_custom} != "none" ]; then
+   if [ -f  ${conf_custom} ]; then
+      printf "$0: include custom parameters from ${conf_custom}\n"
+      . ${conf_custom}
+   else
+      printf "$0: config lib custom parameters not found - exit\n"
+      exit 1
+   fi
+else
+   printf "$0: no custom file in arguments - not used\n"
+fi
+
+# test include external libs from main submodule
+if [ -f  ${main_lib} ]; then
+   . ${main_lib}
+else
+   printf "$0: main libs not found - exit.\n"
+   exit 1
+fi
+
+# print main parameters
+print_main_parameters
+
+# print header
 print_header 'setup zfs raid system'
 
-#Check number of args
+# check number of args
 check_args $# 1
 
-#Parameter/Arguments
+# parameter/arguments
 option=$1
 
-#Main Functions
+# main functions
 main() {
 
-    #Check Inputargs
+    # check inputargs
     case ${option} in
             --test)
-                log -info "test Command for debugging $0"
+                log -info "test command for debugging $0"
                 ;;
 
             --stripe)
@@ -71,7 +114,7 @@ main() {
                 ;;
 
             --help | --info | *)
-                usage   "******FIRST ADJUST PARAMETER IN THE SRIPT*******" \
+                usage   "******first adjust parameter in the sript*******" \
                         "\-\-test:                  test command" \
                         "\-\-stripe:                create stripe" \
                         "\-\-mirror_new:            create new mirror" \
@@ -85,24 +128,24 @@ main() {
 }
 
 
-#Check Gpart
+# check gpart
 check_devlist() {
 
     log -info "list devices"
     camcontrol devlist
 }
 
-#Copy partition sheme
+# copy partition sheme
 copy_partsheme() {
 
     log -info "copy partition sheme"
     gpart backup ada0 | gpart restore ada1
 }
 
-#Attach drive to mirror
+# attach drive to mirror
 attach_mirror() {
 
-    #Parmater adjustet ?  uncomment if OK
+    # parmater adjustet ?  uncomment if ok
     log -err "parameter adjusted ?"
     exit 1
 
@@ -110,10 +153,10 @@ attach_mirror() {
     zpool attach zroot ada0p2 ada1p2
 }
 
-##Create mirror
+# create mirror
 create_mirror() {
 
-    #Parmater adjustet ?  uncomment if OK
+    # parmater adjustet ?  uncomment if ok
     log -err "parameter adjusted ?"
     exit 1
 
@@ -121,22 +164,22 @@ create_mirror() {
     zpool create db mirror gpt/zfs3 gpt/zfs4     
 }
 
-#Create striped pool
+# create striped pool
 create_stripe() {
 
-    #Parmater adjustet ?  uncomment if OK
+    # parmater adjustet ?  uncomment if ok
     log -err "parameter adjusted ?"
     exit 1
 
     log -info "create stripe"
-    #gpt label style
+    # gpt label style
     zpool create scratch gpt/zfs3 gpt/zfs4 
 }
 
-#Create raidz
+# create raidz
 create_raidz() {
 
-    #Parmater adjustet ?  uncomment if OK
+    # parmater adjustet ?  uncomment if ok
     log -err "parameter adjusted ?"
     exit 1
 
@@ -144,17 +187,17 @@ create_raidz() {
     zpool create db raidz gpt/zfs3 gpt/zfs4 gpt/zfs5
 }
 
-#Set autoreplace on
+# set autoreplace on
 set_autoreplace() {
 
     log -info "switch on autoreplace"
     zpool set autoreplace=on zroot 
 }
 
-#Copy mbr Bootload
+# copy mbr bootload
 copy_mbr_loader() {
 
-    #Parmater adjustet ?  uncomment if OK
+    # parmater adjustet ?  uncomment if ok
     log -err "parameter adjusted ?"
     exit 1
 
@@ -162,10 +205,10 @@ copy_mbr_loader() {
     gpart bootcode -b /boot/pmbr -p /boot/gptzfsboot -i 1 ada1
 }
 
-#Copy EFI partition
+# copy efi partition
 copy_efi_part() {
 
-    #Parmater adjustet ?  uncomment if OK
+    # parmater adjustet ?  uncomment if ok
     log -err "parameter adjusted ?"
     exit 1
 
@@ -173,20 +216,20 @@ copy_efi_part() {
     dd if=/dev/ada0p1 of=/dev/ada1p1 bs=4096
 }
 
-#Check requirements
+# check requirements
 check_requirements() {
 
-    #Check Root
+    # check root
     check_root
 
-    #Check Command
+    # check command
     if command -v ls >/dev/null 2>&1 ; then
-        log -info "program Found"
+        log -info "program found"
     else
-        log -info "program Not Found"
-        cleanup_exit ERR
+        log -info "program not found"
+        cleanup_exit err
     fi 
 }
 
-#Call main Function manually - if not need uncomment
+# call main function manually - if not need uncomment
 main "$@"; exit

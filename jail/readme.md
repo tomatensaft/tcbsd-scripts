@@ -4,7 +4,7 @@ jail templaes for easy cration of different jails
 ### init
 init once jail system from configfile (network/zfs) - reboot required
 ``` 
-doas ./setup_jail_guest.sh --init ./conf/jail_standard.conf
+doas ./setup_jail_guest.sh --init ./conf/jail_standard.conf:
 ``` 
 
 ### usage bsd jails

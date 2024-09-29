@@ -1,37 +1,80 @@
 #!/bin/sh
-#SPDX-License-Identifier: MIT
+#spdx-license-identifier: mit
 
 #set -x
 
 # set absolute path of root app for global use - relative path from this point
-# ${PWD%/*} -> one folder up / ${PWD%/*/*} -> two folders up 
-SCRIPT_ROOT_PATH="${PWD%/*}/posix-lib-utils"
+# ${pwd%/*} -> one folder up / ${pwd%/*/*} -> two folders up
+# adjust script application path/folder
+# configuration file will be the same main name as the shell script - but only with .conf extension
 
-# test include external libs from tcbsd submodule
-if [ -f  ${SCRIPT_ROOT_PATH}/tcbsd_lib.sh ]; then
-    . ${SCRIPT_ROOT_PATH}/tcbsd_lib.sh
+# option
+option=${1}
+
+# script parameter
+root_path="${pwd%/*}/tomatoe-lib/" # "${pwd%/*}/tomatoe-lib/"
+main_lib="${root_path}/main_lib.sh"
+app_name="${0##*/}"
+app_fullname="${pwd}/${app_name}"
+#conf_default="$(echo "$app_fullname" | sed 's/.\{2\}$/conf/')"
+conf_default="${pwd%/*}/tomatoe_lib.conf"
+conf_custom=${2:-"none"}
+
+
+# header of parameter
+printf "\nparameters load - $(date +%y-%m-%d-%h-%m-%s)\n"
+printf "########################################\n\n"
+
+# load config file for default parameters
+if [ -f  ${conf_default} ]; then
+   printf "$0: include default parameters from ${conf_default}\n"
+   . ${conf_default}
 else
-    printf "$0: tcbsd external libs not found - exit.\n"
-    exit 1
+   printf "$0: config lib default parameters not found - exit\n"
+   exit 1
 fi
 
-#Check number of args
+# load config file for custom parameters
+if [ ${conf_custom} != "none" ]; then
+   if [ -f  ${conf_custom} ]; then
+      printf "$0: include custom parameters from ${conf_custom}\n"
+      . ${conf_custom}
+   else
+      printf "$0: config lib custom parameters not found - exit\n"
+      exit 1
+   fi
+else
+   printf "$0: no custom file in arguments - not used\n"
+fi
+
+# test include external libs from main submodule
+if [ -f  ${main_lib} ]; then
+   . ${main_lib}
+else
+   printf "$0: main libs not found - exit.\n"
+   exit 1
+fi
+
+# print main parameters
+print_main_parameters
+
+# check number of args
 check_args $# 1
 
-#Print Header
+# print header
 print_header 'setup bhyve/linux guest from configfile'
 
-#Parameter/Arguments
+# parameter/arguments
 option=$1
 config_file=${2:-./conf/bhyhve_standard.conf}
 
-#Main Functions
+# main functions
 main() {
 
-    #Check Inputargs
+    # check inputargs
     case ${option} in
             --test)
-                log -info "test Command for debugging $0"
+                log -info "test command for debugging $0"
                 ;;
 
             --init)
@@ -90,13 +133,13 @@ main() {
 }
 
 
-#List running bhyve instances
+# list running bhyve instances
 list_bhyve(){
     log -info "list running bhyve instances"
     ls -la /dev/vmm
 }
 
-#Clean Jail Data
+# clean jail data
 clean_bhyve_data() {
 
     log -info "stop bhyve"
@@ -111,42 +154,42 @@ clean_bhyve_data() {
 }
 
 
-#Check Vnet Host Interface
+# check vnet host interface
 check_vnet_host() {
 
-    #Virtual Net Host
+    # virtual net host
     if [ -f  ../net/setup_virtual_net.sh ]; then
         . ../net/setup_virtual_net.sh
     else
         log -info "$0: virtual net script not found."
-        cleanup_exit ERR 
+        cleanup_exit err
     fi
 }
 
-#Download base and update system
+# download base and update system
 download_base() { 
 
-    #Download base system
+    # download base system
     if [ -f "/${location_main}/${location_media}/${image_file}" ]; then
         log -info "base file found"
     else
         log -info "download base system"
         fetch -o "/${location_main}/${location_media}/${image_file}" "${image_url}"
 
-        #Check again if file exists
+        # check again if file exists
         if [ -f "/${location_main}/${location_media}/${image_file}" ]; then
             log -info "base file download ok"
         else    
             log -info "base file download failed"
-            cleanup_exit ERR 
+            cleanup_exit err
         fi
     fi  
 }
 
-#Network init flag
+# network init flag
 network_init() {
 
-    #Write network init
+    # write network init
     log -info "write network initialization"
     touch "/${location_main}/${location_config}/network_init"
 
@@ -154,30 +197,30 @@ network_init() {
     log -info "$0: after rebbot use --add_sw parameter for install only software part"
 }
 
-#Set firewall parameter
+# set firewall parameter
 write_pf_conf() {
 
     log -info "write packetfilter to bhyve"
 
-    #check file exists allready
+    # check file exists allready
     if [ -f "/${location_main}/${location_config}/pf.bhyve_${bhyve_name}.conf" ]; then
         log -info "bhyve ${bhyve_name} packetfilter config allready found"
     else
         log -info "bhyve ${bhyve_name} packetfilter config not found - creating"
 
-    #Firewall rules - Standard Device
-    cat << EOF >> /${location_main}/${location_config}/pf.bhyve_${bhyve_name}.conf
+    # firewall rules - standard device
+    cat << eof >> /${location_main}/${location_config}/pf.bhyve_${bhyve_name}.conf
 #dynamic packetfilter rules for ${bhyve_name}
 nat pass on ${net_external_if} from ${net_range} to any -> (${net_external_if})
 pass out all keep state
-EOF
+eof
     fi
 }
 
-#Start Fireall parameter
+# start fireall parameter
 start_pf_conf() {
 
-    #Check File
+    # check file
     if [ -f "/${location_main}/${location_config}/pf.bhyve_${bhyve_name}.conf" ]; then
         log -info "firewall rule file found - load rule"
         pfctl -a virtual/${bhyve_name} -f /${location_main}/${location_config}/pf.bhyve_${bhyve_name}.conf;
@@ -187,10 +230,10 @@ start_pf_conf() {
     
 }
 
-#Create Network configuration
+# create network configuration
 create_net_config() {
 
-    #Check if tap exists
+    # check if tap exists
     if ifconfig | grep ${net_tap_if}; then
         log -info "tap allready exists"
     else
@@ -199,7 +242,7 @@ create_net_config() {
     fi
 
 
-    #Check if Bridge exists
+    # check if bridge exists
     if ifconfig | grep ${net_bridge_name}; then
         log -error "bridge ${net_bridge_name} found"
         ifconfig ${net_bridge_name} addm ${net_tap_if} up
@@ -209,10 +252,10 @@ create_net_config() {
 }
 
 
-#Create zfs host
+# create zfs host
 create_zfs_host() {
 
-    #ZFS for bhyve
+    # zfs for bhyve
     if zfs list | grep "zroot/${location_main}"; then
         log -info "zfs dataset for byhve exists"
     else
@@ -220,7 +263,7 @@ create_zfs_host() {
         zfs create -o mountpoint=/${location_main} zroot/${location_main}
     fi
 
-    #Folder for releases
+    # folder for releases
     if [ -d "/${location_main}/${location_release}" ]; then
         log -info "folder exists for releases"
     else
@@ -228,7 +271,7 @@ create_zfs_host() {
         mkdir /${location_main}/${location_release}
     fi
 
-    #Folder for media
+    # folder for media
     if [ -d "/${location_main}/${location_media}" ]; then
         log -info "folder exists for media"
     else
@@ -236,7 +279,7 @@ create_zfs_host() {
         mkdir /${location_main}/${location_media}
     fi
 
-    #Folder for config
+    # folder for config
     if [ -d "/${location_main}/${location_config}" ]; then
         log -info "folder exists for config"
     else
@@ -244,28 +287,28 @@ create_zfs_host() {
         mkdir /${location_main}/${location_config}
     fi
 
-    #Folder for bhyve dev image
+    # folder for bhyve dev image
     if zfs list | grep ${bhyve_name}; then
         log -info "zfs dev volume exists for ${bhyve_name}"
     else
         log -info "create zfs dev volume for ${bhyve_name}"
-        zfs create -V 10G -o volmode=dev zroot/${location_main}/${bhyve_name}
+        zfs create -v 10g -o volmode=dev zroot/${location_main}/${bhyve_name}
     fi
 
 }
 
 
-#Start Bhyve linux Guest
+# start bhyve linux guest
 install_linux_guest() {
 
     log -info "install linux guest"
     log -info "bootrom ${bhyve_uefi_bootrom} "
     log -info "imagefile /${location_main}/${location_media}/${image_file}"
     
-    #2 Cores / 2 GigRAM / VirtIO / Uefi - Change BHF UEFI Firmware
+    # 2 cores / 2 gigram / virtio / uefi - change bhf uefi firmware
 
-    bhyve -c 2 -m 2G \
-    -A -H \
+    bhyve -c 2 -m 2g \
+    -a -h \
     -l bootrom,${bhyve_uefi_bootrom} \
     -s 0:0,hostbridge \
     -s 1:0,virtio-blk,/dev/zvol/zroot/${location_main}/${bhyve_name} \
@@ -277,12 +320,12 @@ install_linux_guest() {
     ${bhyve_name}
 }
 
-#Start Bhyve linux Guest
+# start bhyve linux guest
 start_linux_guest() {
 
     log -info "start linux guest"
-    bhyve -c 2 -m 2G \
-    -A -H \
+    bhyve -c 2 -m 2g \
+    -a -h \
     -l bootrom,${bhyve_uefi_bootrom} \
     -s 0:0,hostbridge \
     -s 1:0,virtio-blk,/dev/zvol/zroot/${location_main}/${bhyve_name} \
@@ -294,13 +337,13 @@ start_linux_guest() {
 }
 
 
-#Check requirements
+# check requirements
 check_requirements() {
 
-    #Check Root
+    # check root
     check_root
 
-    #Check Bhyve
+    # check bhyve
     if command -v bhyve >/dev/null 2>&1 ; then
         log -info "bhyve grub program found"
     else
@@ -308,21 +351,21 @@ check_requirements() {
         c
     fi 
 
-    #Check Grub Uefi Loader
+    # check grub uefi loader
     if pkg info grub2-bhyve | grep bhyve; then
         log -info "bhyve grub uefi loader found"
     else
         pkg install -y grub2-bhyve 
     fi
 
-    #Check Uefi Firmware
+    # check uefi firmware
     if pkg info bhyve-firmware | grep bhyve; then
         log -info "bhyve uefi firmware found"
     else
         pkg install -y bhyve-firmware 
     fi
 
-    #Check Kernel Modules
+    # check kernel modules
     if kldstat | grep vmm; then
         log -info "kernel module vmm found"
     else
@@ -332,5 +375,5 @@ check_requirements() {
 }
 
 
-#Call main Function manuall - if not need uncomment
+# call main function manuall - if not need uncomment
 main "$@"; exit

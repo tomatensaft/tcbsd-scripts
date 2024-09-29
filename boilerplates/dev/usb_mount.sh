@@ -1,37 +1,80 @@
 #!/bin/sh
-#SPDX-License-Identifier: MIT
+#spdx-license-identifier: mit
 
-#Usb helper
+#set -x
 
-#Include extenal scripts
-if [ -f  ../../../lib/shared_lib.sh ]; then
-    . ../../../lib/shared_lib.sh
-elif [ -f  ../../lib/shared_lib.sh ]; then
-    . ../../lib/shared_lib.sh
-elif [ -f  ../lib/shared_lib.sh ]; then
-    . ../lib/shared_lib.sh    
+# set absolute path of root app for global use - relative path from this point
+# ${pwd%/*} -> one folder up / ${pwd%/*/*} -> two folders up
+# adjust script application path/folder
+# configuration file will be the same main name as the shell script - but only with .conf extension
+
+# option
+option=${1}
+
+# script parameter
+root_path="${pwd%/*}/tomatoe-lib/" # "${pwd%/*}/tomatoe-lib/"
+main_lib="${root_path}/main_lib.sh"
+app_name="${0##*/}"
+app_fullname="${pwd}/${app_name}"
+#conf_default="$(echo "$app_fullname" | sed 's/.\{2\}$/conf/')"
+conf_default="${pwd%/*}/tomatoe_lib.conf"
+conf_custom=${2:-"none"}
+
+
+# header of parameter
+printf "\nparameters load - $(date +%y-%m-%d-%h-%m-%s)\n"
+printf "########################################\n\n"
+
+# load config file for default parameters
+if [ -f  ${conf_default} ]; then
+   printf "$0: include default parameters from ${conf_default}\n"
+   . ${conf_default}
 else
-    printf "$0: shared lib not found - exit."
-    exit 1
+   printf "$0: config lib default parameters not found - exit\n"
+   exit 1
 fi
 
-#Print Header
+# load config file for custom parameters
+if [ ${conf_custom} != "none" ]; then
+   if [ -f  ${conf_custom} ]; then
+      printf "$0: include custom parameters from ${conf_custom}\n"
+      . ${conf_custom}
+   else
+      printf "$0: config lib custom parameters not found - exit\n"
+      exit 1
+   fi
+else
+   printf "$0: no custom file in arguments - not used\n"
+fi
+
+# test include external libs from main submodule
+if [ -f  ${main_lib} ]; then
+   . ${main_lib}
+else
+   printf "$0: main libs not found - exit.\n"
+   exit 1
+fi
+
+# print main parameters
+print_main_parameters
+
+# print header
 print_header 'usb mount'
 
-#Check number of args
+# check number of args
 check_args $# 1
 
-#Parameter/Arguments
+# parameter/arguments
 option=$1
 device=${2:-/dev/da0s1}
 mountpath="/mnt/usb"
 
-#Main Functions
+# main functions
 main() {
-    #Check Inputargs
+    # check inputargs
     case ${option} in
             --test)
-                log -info "test Command for debugging $0"
+                log -info "test command for debugging $0"
                 ;;
 
             --mount)
@@ -42,7 +85,7 @@ main() {
                 ;;
 
             --umount)
-                log -info "umount usb Device"
+                log -info "umount usb device"
                 check_requirements
                 check_folder
                 umount_usb
@@ -60,7 +103,7 @@ main() {
 
             --help | --info | *)
                 usage   "\-\-test:                  test command" \
-                        "\-\-mount [/dev/daX]:      mount device - optional parameter" \
+                        "\-\-mount [/dev/dax]:      mount device - optional parameter" \
                         "\-\-list_gp:               list gpart devices" \
                         "\-\-list_dev:              list devices" \
                         "\-\-umount:                umount device" \
@@ -69,7 +112,7 @@ main() {
     esac
 }
 
-#Check Gpart
+# check gpart
 check_gpart() {
 
     log -info "list part devices"
@@ -82,7 +125,7 @@ check_gpart() {
 	fi
 }
 
-#Check devices
+# check devices
 check_devices() {
 
     log -info "list dev devices (most da0s1)"
@@ -95,7 +138,7 @@ check_devices() {
 	fi
 }
 
-#Mount USB Device
+# mount usb device
 mount_usb() {
 
     log -info "mount device readonly (standard $1)"
@@ -107,18 +150,18 @@ mount_usb() {
         log -info "folder /dev/da0p1 found"
         mount -t msdosfs /dev/da0p1 ${mountpath}
     else
-        log -info "No mount device in /dev found"       
+        log -info "no mount device in /dev found"
     fi   
 }
 
-#UMount USB
+# umount usb
 umount_usb() {
 
     log -info "unmount ${mountpath}"
     umount ${mountpath}
 }
 
-#Check Folder
+# check folder
 check_folder() {
 
     if [ -d ${mountpath} ]; then
@@ -130,20 +173,20 @@ check_folder() {
 
 }
 
-#Check requirements
+# check requirements
 check_requirements() {
 
-    #Check Root
+    # check root
     check_root
 
-    #Check Command
+    # check command
     if command -v ls >/dev/null 2>&1 ; then
         log -info "program found"
     else
         log -info "program not found"
-        cleanup_exit ERR
+        cleanup_exit err
     fi 
 }
 
-#Call main Function manually - if not need uncomment
+# call main function manually - if not need uncomment
 main "$@"; exit

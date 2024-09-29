@@ -4,35 +4,78 @@
 #set -x
 
 # set absolute path of root app for global use - relative path from this point
-# ${PWD%/*} -> one folder up / ${PWD%/*/*} -> two folders up 
-SCRIPT_ROOT_PATH="${PWD%/*}/posix-lib-utils"
+# ${PWD%/*} -> one folder up / ${PWD%/*/*} -> two folders up
+# adjust script application path/folder
+# configuration file will be the same main name as the shell script - but only with .conf extension
 
-# test include external libs from tcbsd submodule
-if [ -f  ${SCRIPT_ROOT_PATH}/tcbsd_lib.sh ]; then
-    . ${SCRIPT_ROOT_PATH}/tcbsd_lib.sh
+# option
+option=${1}
+
+# script parameter
+root_path="${PWD%/*}/tomatoe-lib/" # "${PWD%/*}/tomatoe-lib/"
+main_lib="${root_path}/main_lib.sh"
+app_name="${0##*/}"
+app_fullname="${PWD}/${app_name}"
+#conf_default="$(echo "$app_fullname" | sed 's/.\{2\}$/conf/')"
+conf_default="${PWD%/*}/tomatoe_lib.conf"
+conf_custom=${2:-"none"}
+
+
+# header of parameter
+printf "\nparameters load - $(date +%Y-%m-%d-%H-%M-%S)\n"
+printf "########################################\n\n"
+
+# load config file for default parameters
+if [ -f  ${conf_default} ]; then
+   printf "$0: include default parameters from ${conf_default}\n"
+   . ${conf_default}
 else
-    printf "$0: tcbsd external libs not found - exit.\n"
-    exit 1
+   printf "$0: config lib default parameters not found - exit\n"
+   exit 1
 fi
 
-#Print Header
+# load config file for custom parameters
+if [ ${conf_custom} != "none" ]; then
+   if [ -f  ${conf_custom} ]; then
+      printf "$0: include custom parameters from ${conf_custom}\n"
+      . ${conf_custom}
+   else
+      printf "$0: config lib custom parameters not found - exit\n"
+      exit 1
+   fi
+else
+   printf "$0: no custom file in arguments - not used\n"
+fi
+
+# test include external libs from main submodule
+if [ -f  ${main_lib} ]; then
+   . ${main_lib}
+else
+   printf "$0: main libs not found - exit.\n"
+   exit 1
+fi
+
+# print main parameters
+print_main_parameters
+
+# print Header
 print_header 'create ce certificate'
 
-#Check number of args
+# check number of args
 check_args $# 1
 
-#Parameter/Arguments
+# parameter/Arguments
 option=$1
 config_file=${2:-".env"}
 
 
-#Main Functions
+# main Functions
 main() {
 
-    #Check Inputargs
+    # check Inputargs
     case $option in
             --test)
-                log -info "test Command for debugging $0"
+                log -info "test command for debugging $0"
                 ;;
 
             --create)
@@ -59,21 +102,21 @@ main() {
 
 create_ca_certificate() {
 
-    #check arguments
+    # check arguments
     check_args $# 1
 
-    #create folder folder
+    # create folder folder
     log -info "create folder"
     mkdir -p $1
     #chmod -R 777 $1
     cd $1
 
-    #Init PKI
+    # init PKI
     log -info "init pki"
     easy-rsa init-pki
     chmod -R 777 $1
 
-    #Cretae vars file
+    # cretae vars file
     log -info "create file"
     cat << EOF > $1/pki/vars
 set_var EASYRSA_REQ_COUNTRY     ${EASYRSA_REQ_COUNTRY}
@@ -87,27 +130,27 @@ set_var EASYRSA_CA_EXPIRE	${EASYRSA_CA_EXPIRE}
 set_var EASYRSA_CERT_EXPIRE	${EASYRSA_CERT_EXPIRE}
 EOF
 
-    #Buidl CA Server & Client
+    # build CA server & client
     log -info "create certificates"
     easy-rsa build-ca #nopass - without passwd
 
-    #Server certificate
+    # server certificate
     easy-rsa build-server-full $2 nopass #attention nopass
 
-    #Client certificate
+    # client certificate
     easy-rsa build-client-full $3 nopass #attention nopass
 
-    #generate diffihellmann
+    # generate diffihellmann
     easy-rsa gen-dh
 
-    #generaute revocatipn certificate
+    # generaute revocatipn certificate
     easy-rsa gen-crl
 
-    #Access for all users - if wanted
+    # access for all users - if wanted
     chmod -R 777 $1
 }
 
-#Delete Certificates
+# delete Certificates
 delete_ca_certificates() {
 
     read -t 8 -p "delete $1 ? [(y)es, (n)o]: " selectOption
@@ -121,13 +164,13 @@ delete_ca_certificates() {
     log -info "exit without deleting"
 }
 
-#Check requirements
+# check requirements
 check_requirements() {
 
-    #Check Root
+    # check root
     check_root
 
-    #Check Command
+    # check command
     if command -v ls >/dev/null 2>&1 ; then
         log -info "program Found"
     else
@@ -135,14 +178,14 @@ check_requirements() {
         cleanup_exit ERR
     fi 
 
-    #Check easy-rsa software
+    # check easy-rsa software
     if pkg info easy-rsa | grep easy-rsa; then
         log -info "easy-rsa software found"
     else
         pkg install -y easy-rsa 
     fi
 
-    #Check easy-rsa software    
+    # check easy-rsa software
     if pkg info openssl | grep openssl; then
         log -info "opsnssl software found"
     else
@@ -151,5 +194,5 @@ check_requirements() {
 
 }
 
-#Call main Function manually - if not need uncomment
+# call main Function manually - if not need uncomment
 main "$@"; exit

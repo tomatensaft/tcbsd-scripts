@@ -1,42 +1,85 @@
 #!/bin/sh
-#SPDX-License-Identifier: MIT
+#spdx-license-identifier: mit
 
 #set -x
 
 # set absolute path of root app for global use - relative path from this point
-# ${PWD%/*} -> one folder up / ${PWD%/*/*} -> two folders up 
-SCRIPT_ROOT_PATH="${PWD%/*}/posix-lib-utils"
+# ${pwd%/*} -> one folder up / ${pwd%/*/*} -> two folders up
+# adjust script application path/folder
+# configuration file will be the same main name as the shell script - but only with .conf extension
 
-# test include external libs from tcbsd submodule
-if [ -f  ${SCRIPT_ROOT_PATH}/tcbsd_lib.sh ]; then
-    . ${SCRIPT_ROOT_PATH}/tcbsd_lib.sh
+# option
+option=${1}
+
+# script parameter
+root_path="${pwd%/*}/tomatoe-lib/" # "${pwd%/*}/tomatoe-lib/"
+main_lib="${root_path}/main_lib.sh"
+app_name="${0##*/}"
+app_fullname="${pwd}/${app_name}"
+#conf_default="$(echo "$app_fullname" | sed 's/.\{2\}$/conf/')"
+conf_default="${pwd%/*}/tomatoe_lib.conf"
+conf_custom=${2:-"none"}
+
+
+# header of parameter
+printf "\nparameters load - $(date +%y-%m-%d-%h-%m-%s)\n"
+printf "########################################\n\n"
+
+# load config file for default parameters
+if [ -f  ${conf_default} ]; then
+   printf "$0: include default parameters from ${conf_default}\n"
+   . ${conf_default}
 else
-    printf "$0: tcbsd external libs not found - exit.\n"
-    exit 1
+   printf "$0: config lib default parameters not found - exit\n"
+   exit 1
 fi
 
-#Check number of args
+# load config file for custom parameters
+if [ ${conf_custom} != "none" ]; then
+   if [ -f  ${conf_custom} ]; then
+      printf "$0: include custom parameters from ${conf_custom}\n"
+      . ${conf_custom}
+   else
+      printf "$0: config lib custom parameters not found - exit\n"
+      exit 1
+   fi
+else
+   printf "$0: no custom file in arguments - not used\n"
+fi
+
+# test include external libs from main submodule
+if [ -f  ${main_lib} ]; then
+   . ${main_lib}
+else
+   printf "$0: main libs not found - exit.\n"
+   exit 1
+fi
+
+# print main parameters
+print_main_parameters
+
+# check number of args
 check_args $# 1
 
-#Print Header
+# print header
 print_header 'small git commandline helper'
 
-#Parameter/Arguments
+# parameter/arguments
 option=$1
-repository="ShellRepository"
+repository="shellrepository"
 working_dir="/tmp/git"
-#Pull Options
+#pull options
 #git config pull.ff only 
 git config pull.rebase true 
 
-#Main Functions
+# main functions
 main() {
 
-    #Check Inputargs
+    # check inputargs
     case $option in
 
         --test)
-            log -info "test Command for debugging $0"
+            log -info "test command for debugging $0"
             ;;
 
         --pull)
@@ -71,39 +114,39 @@ main() {
 
 }
 
-#https://lerneprogrammieren.de/git/
+# https://lerneprogrammieren.de/git/
 
-#Repo pull
+# repo pull
 repo_pull() {
 
-    log -info "git pull ${repository} - NOT IMPLEMENTET"
+    log -info "git pull ${repository} - not implementet"
 }
 
-#Repo pull
+# repo pull
 repo_changes() {
 
     git status
     git config -global -list
 }
 
-#Repo pull
+# repo pull
 repo_clone() {
 
-    git clone https://github.com/tomatensaft/ShellRepository.git $working_dir
+    git clone https://github.com/tomatensaft/tomatoe-lib.git $working_dir
 }
 
-#Commit and Push
+# commit and push
 repo_push() {
 
-    #user
+    # user
     printf "git username: "
     read username
 
-    #token - maybe file
+    # token - maybe file
     echo "git token: "
     read token
 
-    #check via curl
+    # check via curl
     curl "https://api.github.com/repos/${username}/${repository}.git"
 
 
@@ -112,7 +155,7 @@ repo_push() {
         git status #unstaged files
         git remote set-url origin https://${token}@github.com/${username}/${repository}.git
         if [ "$(git status --porcelain)" ]; then
-            printf "please Commit: "
+            printf "please commit: "
             read committment
             git add .
             git commit -m "$committment"
@@ -120,7 +163,7 @@ repo_push() {
             log -info "git committed and pushed"
         else
             git push
-            log -info "git Pushed"
+            log -info "git pushed"
 
         fi
 
@@ -128,24 +171,24 @@ repo_push() {
             log -info "no files to push"
         fi
     else
-        log -ERR "repo ${repository} not found"
+        log -err "repo ${repository} not found"
     fi
 }
 
-#Check requirements
+# check requirements
 check_requirements() {
 
-    #Check Root
+    # check root
     check_root
 
-    #Check Command
+    # check command
     if command -v ls >/dev/null 2>&1 ; then
-        log -info "program Found"
+        log -info "program found"
     else
-        log -info "program Not Found"
-        cleanup_exit ERR
+        log -info "program not found"
+        cleanup_exit err
     fi 
 }
 
-#Call main Function manually - if not need uncomment
+# call main function manually - if not need uncomment
 main "$@"; exit
