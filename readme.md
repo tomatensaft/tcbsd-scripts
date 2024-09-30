@@ -1,12 +1,11 @@
 <!-- omit in toc -->
-# tcbsd-scripts :smiling_imp:
+# tcbsd-scripts 😈
 
 posix examples for freebsd/tcbsd
 
 <!-- omit in toc -->
 ## contents
 
-- [contents](#contents)
 - [installation](#installation)
 - [usage](#usage)
 - [resources](#resources)

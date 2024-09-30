@@ -1,19 +1,26 @@
-## tmux cli multiwindows
+<!-- omit in toc -->
+# tmux cli multiwindows 💪
 
 tmux for multiwindows in the console
 
-### tmux control
+<!-- omit in toc -->
+## contents
+
+- [tmux control](#tmux-control)
+- [stmux status queries](#stmux-status-queries)
+
+## tmux control
 
 start tmux control
 
-``` 
+```sh
 tmux_control.sh --start
-``` 
+```
 
-### tmux status queries
+## stmux status queries
 
 tmux status
 
-``` 
+```sh
 tmux_status.sh -cpu/mem/net
-``` 
+```

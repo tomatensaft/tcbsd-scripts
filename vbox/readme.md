@@ -1,11 +1,17 @@
-## virtualbox
+<!-- omit in toc -->
+# virtualbox ⏭️
 
 virtualbox configurations and guest additions
 
-### guest configuration
+<!-- omit in toc -->
+## contents
 
-activate configuration
+- [guest configuration](#guest-configuration)
 
-``` 
+## guest configuration
+
+actsivate configuration
+
+```sh
 setup_vbox_guest.sh
-``` 
+```
